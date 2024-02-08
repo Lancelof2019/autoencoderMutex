@@ -15,15 +15,15 @@ from datetime import datetime
 import logging
 import datetime
 
-
+# 定义一个小的神经网络层
 class inputSmallNetwork(tf.keras.layers.Layer):
-    def __init__(self, input_n_hidden1, input_n_hidden2, activation,is_train):
+    def __init__(self, input_n_hidden1, input_n_hidden2, activation):
         super(inputSmallNetwork, self).__init__()
         self.l2 = None
         self.l1 = None
         self.n_hidden1 = input_n_hidden1
         self.n_hidden2 = input_n_hidden2
-        self.is_train = is_train
+        #self.is_train = is_train
         #self.concate = self.input_concate
         self.activation = activation
         self.is_train = False
@@ -35,9 +35,10 @@ class inputSmallNetwork(tf.keras.layers.Layer):
         # self.layer2 = tf.keras.layers.Dense(self.n_hidden2, activation='relu')
         # tf.keras.layers.BatchNormalization()(l1, training=bool(self.is_train))
 
-    def call(self, inputs):
+    def call(self, inputs,is_train):
         l1 = self.l1_layer(inputs[0])
         l2 = self.l2_layer(inputs[1])
+        self.is_train=is_train
         l1 = tf.keras.layers.BatchNormalization()(l1, training=bool(self.is_train))
         l2 = tf.keras.layers.BatchNormalization()(l2, training=bool(self.is_train))
         l1 = self.activation(l1)
@@ -47,16 +48,16 @@ class inputSmallNetwork(tf.keras.layers.Layer):
         return self.l1, self.l2
 
 
-
+# 定义一个大的神经网络层，包含三个小的神经网络层
 class encoderNetwork(tf.keras.models.Model):
-    def __init__(self, input_n_hidden1, input_n_hidden2, output_hidden, activation,is_train):
+    def __init__(self, input_n_hidden1, input_n_hidden2, output_hidden, activation):
         super(encoderNetwork, self).__init__()
         # super().__init__(*args, **kwargs)
         self.l3 = None
-        self.ensmallNetwork = inputSmallNetwork(input_n_hidden1, input_n_hidden2, activation,is_train)
+        self.ensmallNetwork = inputSmallNetwork(input_n_hidden1, input_n_hidden2, activation)
         self.n_hidden3 = output_hidden
         self.l3_layer = tf.keras.layers.Dense(self.n_hidden3, kernel_initializer='random_normal', name='layer3')
-        self.is_train = is_train
+
         # l3 = self.l3_layer(tf.concat([self.small_network.l1,self.small_network.l2 ], 1))
         # l1,l2 are bounded in l
         # print("-----layer3 shape", l3.shape)
@@ -65,8 +66,9 @@ class encoderNetwork(tf.keras.models.Model):
         # self.concatenate = tf.keras.layers.Concatenate()
         # self.output_layer = tf.keras.layers.Dense(self.concate, activation='softmax')
 
-    def call(self, inputs):
-        output = self.ensmallNetwork(inputs)
+    def call(self, inputs, is_train):
+        self.is_train = is_train
+        output = self.ensmallNetwork(inputs,self.is_train)
 
         # self.l3_layer = tf.keras.layers.Dense(self.n_hiddensh, kernel_initializer=self.init, name='layer3')
         l3 = self.l3_layer(tf.concat([output[0], output[1]], 1))
@@ -76,14 +78,13 @@ class encoderNetwork(tf.keras.models.Model):
 
 
 class outputSmallNetwork(tf.keras.layers.Layer):
-    def __init__(self, input_n_hidden1, input_n_hidden2, activation,is_train):
+    def __init__(self, input_n_hidden1, input_n_hidden2, activation):
         super(outputSmallNetwork, self).__init__()
         self.l5 = None
         self.l6 = None
         self.n_hidden5 = input_n_hidden1
         self.n_hidden6 = input_n_hidden2
         self.activation = activation
-        self.is_train = is_train
         # self.layer1 = tf.keras.layers.Dense(self.n_hidden1, activation='relu')
         self.l5_layer = tf.keras.layers.Dense(self.n_hidden5, kernel_initializer='random_normal', name='layer1')
         self.l6_layer = tf.keras.layers.Dense(self.n_hidden6, kernel_initializer='random_normal', name='layer2')
@@ -92,9 +93,10 @@ class outputSmallNetwork(tf.keras.layers.Layer):
         # self.layer2 = tf.keras.layers.Dense(self.n_hidden2, activation='relu')
         # tf.keras.layers.BatchNormalization()(l1, training=bool(self.is_train))
 
-    def call(self, inputs):
+    def call(self, inputs,is_train):
         l5 = self.l5_layer(inputs[0])
         l6 = self.l6_layer(inputs[1])
+        self.is_train=is_train
         l5 = tf.keras.layers.BatchNormalization()(l5, training=bool(self.is_train))
         l6 = tf.keras.layers.BatchNormalization()(l6, training=bool(self.is_train))
         l5 = self.activation(l5)
@@ -105,42 +107,45 @@ class outputSmallNetwork(tf.keras.layers.Layer):
 
 
 class decoderNetwork(tf.keras.models.Model):
-    def __init__(self, input_n_hidden1, input_n_hidden2,activation,is_train):
+    def __init__(self, input_n_hidden1, input_n_hidden2,activation):
         super(decoderNetwork, self).__init__()
 
         self.l4_layer = tf.keras.layers.Dense(input_n_hidden1 + input_n_hidden2, kernel_initializer='random_normal',
                                               name='layer4')
         self.n_hidden5 = input_n_hidden1
         self.n_hidden6 = input_n_hidden2
-        self.is_train = is_train
+
         #self.l5_layis_trainer = tf.keras.layers.Dense(input_n_hidden1, kernel_initializer=self.init, name='layer5')
         #self.l6_layer = tf.keras.layers.Dense(input_n_hidden2, kernel_initializer=self.init, name='layer6')
 
-        self.outsmallNetwork=outputSmallNetwork(input_n_hidden1,input_n_hidden2,activation,is_train)
+        self.outsmallNetwork=outputSmallNetwork(input_n_hidden1,input_n_hidden2,activation)
 
-    def call(self, inputs):
+    def call(self, inputs,is_train):
         l4 = self.l4_layer(inputs)
+        self.is_train = is_train
+        #self.is_train = True
         l4 = tf.keras.layers.BatchNormalization()(l4, training=bool(self.is_train))
         self.l4 = l4
 
         output = tf.split(l4, [self.n_hidden5, self.n_hidden6], 1)
-        l5,l6=self.outsmallNetwork(output)
+        l5,l6=self.outsmallNetwork(output,self.is_train)
         return l5,l6
-
+# 定义一个更大的神经网络层，包含四个LargeNetwork实例
 # -------------------------------------------------------------------------
 
 class Autoencoder(tf.keras.models.Model):
-      def __init__(self, input_n_hidden1, input_n_hidden2, output_hidden, activation,is_train):
+      def __init__(self, input_n_hidden1, input_n_hidden2, output_hidden, activation):
           super(Autoencoder, self).__init__()
-          self.encoder = encoderNetwork(input_n_hidden1, input_n_hidden2, output_hidden, activation,is_train)
-          self.decoder = decoderNetwork(input_n_hidden1, input_n_hidden2, activation,is_train)
+          self.encoder = encoderNetwork(input_n_hidden1, input_n_hidden2, output_hidden, activation)
+          self.decoder = decoderNetwork(input_n_hidden1, input_n_hidden2, activation)
           #self.inputData=X_train
 
-      def call(self, inputs):
-          encoded = self.encoder(inputs)
-          decoded = self.decoder(encoded)
+      def call(self, inputs,is_train):
+          self.is_train = is_train
+          encoded = self.encoder(inputs,self.is_train)
+          decoded = self.decoder(encoded,self.is_train)
           return decoded
-#--------------------------------------------------------------------------
+
 if __name__ == '__main__':
 
     f = open(
@@ -209,8 +214,9 @@ if __name__ == '__main__':
         print("The traning set of X1 train", X_train1.shape)
         print("The traning set of X2 train", X_train2.shape)
         sampleInput=[X_train1,X_train2]
-        sae = Autoencoder(n_hidden1, n_hidden2, output_hidden, activation=act,is_train=False)
-        resultMatrix=sae(sampleInput)
+        is_train = True
+        sae = Autoencoder(n_hidden1, n_hidden2, output_hidden, activation=act)
+        resultMatrix=sae(sampleInput,is_train)
         #print(resultMatrix)
         print(resultMatrix[0].numpy().shape)
         print(resultMatrix[1].numpy().shape)
