@@ -16,7 +16,7 @@ import logging
 import datetime
 
 
-# 定义一个小的神经网络层
+
 class inputSmallNetwork(tf.keras.layers.Layer):
     def __init__(self, n_hidden1, n_hidden2, activation):
         super(inputSmallNetwork, self).__init__()
@@ -58,7 +58,7 @@ class inputSmallNetwork(tf.keras.layers.Layer):
         return self.l1_layer.kernel, self.l2_layer.kernel,self.l1_layer.bias,self.l2_layer.bias
 
 
-# 定义一个大的神经网络层，包含三个小的神经网络层
+
 class encoderNetwork(tf.keras.models.Model):
     def __init__(self, n_input1, n_input2, n_hiddensh, activation):
         super(encoderNetwork, self).__init__()
@@ -163,7 +163,7 @@ class decoderNetwork(tf.keras.models.Model):
         return self.l4_layer.kernel,self.l4_layer.bias
 
 
-# 定义一个更大的神经网络层，包含四个LargeNetwork实例
+
 # -------------------------------------------------------------------------
 
 class Autoencoder(tf.keras.models.Model):
