@@ -363,12 +363,24 @@ class Autoencoder(tf.keras.models.Model):
             if last_improvement > self.require_improvement:
                 stop = True
             epoch += 1
+        final_loss = costs[-1]
         plt.figure()
         plt.plot(costs)
         plt.ylabel('cost Loss')
         plt.xlabel('Iterations')
-        plt.title("Learning rate =" + str(round(self.learning_rate, 3)))
-        plt.savefig(r'C:\Users\gklizh\Documents\Workspace\code_and_data12\figure\loss_curve\training_picture' + f'_testU.png')
+        plt.title("Learning rate =" + str(round(self.learning_rate, 9)))
+        ########################################################
+        plt.annotate(f'Final Loss: {final_loss:.9f}',
+                     xy=(len(costs) - 1, final_loss),
+                     xytext=(len(costs) / 2, final_loss),
+                     textcoords='data',
+                     #arrowprops=dict(facecolor='black', shrink=0.05),
+                     horizontalalignment='right', verticalalignment='top')
+
+        #plt.text(len(costs) - 1, final_loss, f'Final Loss: {final_loss:.2f}', fontsize=10, ha='right', va='bottom')
+
+        #########################################################
+        plt.savefig(r'C:\Users\gklizh\Documents\Workspace\code_and_data12\figure\loss_curve\training_picture' + f'_testW.png')
         plt.close()
 
 if __name__ == '__main__':
