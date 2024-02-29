@@ -210,7 +210,7 @@ class Autoencoder(tf.keras.models.Model):
         self.alpha = None
         self.lamda = None
         self.learning_rate = None
-
+        self.trigger = True
     def call(self, inputs, is_train):
 
 
@@ -259,8 +259,11 @@ class Autoencoder(tf.keras.models.Model):
         # self.get_weights()
         # print("The 2nd time of sampleInput", type(sampleInput))
         ############################################
-        self.encoder = encoderNetwork(self.n_hidden1, self.n_hidden2, self.n_hiddensh, self.activation)
-        self.decoder = decoderNetwork(self.n_input1, self.n_input2, self.n_hidden1, self.n_hidden2, self.activation)
+         if self.trigger ==False:
+            self.encoder = encoderNetwork(self.n_hidden1, self.n_hidden2, self.n_hiddensh, self.activation)
+            self.decoder = decoderNetwork(self.n_input1, self.n_input2, self.n_hidden1, self.n_hidden2, self.activation)
+            self.trigger = True
+       
         #############################################
         self.compareOutPut = self.call(sampleInput, is_train)
         # print("The 3rd time of sampleInput", type(sampleInput))
