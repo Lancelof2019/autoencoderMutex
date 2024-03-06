@@ -423,7 +423,7 @@ class Autoencoder(tf.keras.models.Model):
                 # avg_cost += cost[0] * len(sample) / n_samples
 
                 with tf.GradientTape() as tape:
-                    # 计算当前批次的损失
+                    
                     # if epoch == 0 and counter == 0:
                     # current_loss = self.loss(batch_xs1, batch_xs2)
                     # else:
@@ -431,12 +431,12 @@ class Autoencoder(tf.keras.models.Model):
 
                 #logger.info(self.trainable_variables)
 
-                # 计算梯度
+               
                 gradients = tape.gradient(current_loss, self.trainable_variables)
                 # print("~~~~~~~~~~~~~~~~~~~~value exists~~~~~~~~~~~~~~~~")
                 # print(gradients)
                 # print("~~~~~~~~~~~~~~~~~~~~value exists~~~~~~~~~~~~~~~~")
-                # 更新模型的参数
+                
                 self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
                 logger.info(
                     f"----------------------check if the weighths has been approved in this patch -----------------------------")
@@ -736,19 +736,19 @@ def train_test(params, testInput, iterator,logger):
             # logger.info(batch_xs1.shape)
             # logger.info(batch_xs2.shape)
             with tf.GradientTape() as tape:
-                # 计算当前批次的损失
+               
                 # current_loss = self.lossfun(batch_xs1, batch_xs2)
                 # if epoch == 0 and counter == 0:
                 # current_loss = self.loss(batch_xs1, batch_xs2)
                 # else:
                 # current_loss = self.lossfun(batch_xs1, batch_xs2)
                 current_loss = sae_test.lossfun([batch_xs1, batch_xs2], is_train, _init)
-                # 计算梯度
+               
             gradients = tape.gradient(current_loss, sae_test.trainable_variables)
             # print("~~~~~~~~~~~~~~~~~~~~value exists~~~~~~~~~~~~~~~~")
             # print(gradients)
             # print("~~~~~~~~~~~~~~~~~~~~value exists~~~~~~~~~~~~~~~~")
-            # 更新模型的参数
+            
             sae_test.optimizer.apply_gradients(zip(gradients, sae_test.trainable_variables))
             # print("--------------------------train test is -------------------------------:",
             #  self.trainable_variables)
