@@ -757,7 +757,7 @@ if __name__ == '__main__':
     # 在Python中获取值
     community_num = ro.r('number_of_communities')[0]
     print(community_num)
-    #parallel_processing(selected_features, inputhtseq, inputmethy, num_processes, act,community_num)
+    parallel_processing(selected_features, inputhtseq, inputmethy, num_processes, act,community_num)
 
     # tanh activation function
 
