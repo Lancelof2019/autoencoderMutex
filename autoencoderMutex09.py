@@ -988,7 +988,14 @@ if __name__ == '__main__':
     ro.r('suppressPackageStartupMessages(library(circlize))')
     ro.r('suppressPackageStartupMessages(library(tidyverse))')
     ro.r('suppressPackageStartupMessages(library(maftools))')
-    ro.r("melanet_cmt <- readRDS('C:/Users/gklizh/Documents/Workspace/code_and_data12/data/spinglass/melanet_cmt.RData')")
+    load_file = 'C:/Users/gklizh/Documents/Workspace/code_and_data12/data/spinglass/melanet_cmt.RData'
+
+    # 将文件路径传递给R环境
+    ro.r(f"load_file <- '{load_file}'")
+
+    # 使用这个变量来读取RDS文件
+    ro.r("melanet_cmt <- readRDS(load_file)")
+
     # 获取社区的数量
     ro.r('number_of_communities <- length(melanet_cmt)')
 
