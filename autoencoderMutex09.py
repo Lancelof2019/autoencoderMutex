@@ -997,11 +997,7 @@ if __name__ == '__main__':
     print(community_num)
 
 
-
-
-
-
-    #parallel_processing(selected_features, inputhtseq, inputmethy, num_processes, act, community_num)
+    parallel_processing(selected_features, inputhtseq, inputmethy, num_processes, act, community_num)
 
     # tanh activation function
 
